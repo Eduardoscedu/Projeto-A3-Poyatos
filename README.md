@@ -63,6 +63,7 @@ O objetivo é aplicar práticas de **gestão de qualidade de software** e **boas
 - Luiz Eduardo Xavier de Almeida - 324117254  
 - Eduardo de Souza Campos - 825148524
 - Danillo Rodrigues de Moraes Almeida - 12525194853
+- Matheus Luz de Assumpção - 825122239
 
 - **Disciplina:** A3 - Gestão e Qualidade de Software
 - **Instituição:** [Anima]
