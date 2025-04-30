@@ -86,13 +86,31 @@ def editar_carro(carro_id, marca, modelo, ano, preco):
     conn.commit()
     conn.close()
 
-def pesquisar_carro( marca, modelo, ano, preco):
+def pesquisar_carro(marca="", modelo="", ano=None, preco=None):
     conn = conectar_banco()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM carros WHERE marca=? AND modelo=? AND ano=? AND preco=? AND id=?"), (marca, modelo, ano, preco)
+    
+    query = "SELECT * FROM carros WHERE 1=1"
+    params = []
+
+    if marca:
+        query += " AND marca LIKE ?"
+        params.append(f"%{marca}%")
+    if modelo:
+        query += " AND modelo LIKE ?"
+        params.append(f"%{modelo}%")
+    if ano is not None:
+        query += " AND ano = ?"
+        params.append(ano)
+    if preco is not None:
+        query += " AND preco = ?"
+        params.append(preco)
+
+    cursor.execute(query, params)
     carros = cursor.fetchall()
     conn.close()
     return carros
+
 
 # Operações para login/registro
 def autenticar_usuario(nome, senha):
