@@ -28,6 +28,8 @@ O objetivo é aplicar práticas de **gestão de qualidade de software** e **boas
 | ✏️ **Editar**           | Permite alterar os dados de um veículo já cadastrado. (É necessário selecioná-lo na lista.) |
 | 🗑️ **Remover**          | Exclui o veículo selecionado da lista. |
 | 🧹 **Limpar Campo**     | Apaga os dados dos campos de texto para novos cadastros. |
+| 🔍 **Pesquisar**     | Faz a procura de algum carro especifico dentro do banco de dados da loja. |
+| 💲 **Vender**     | Abre o sistema para oferar a venda do veiculo. |
 | 📋 **Lista de Veículos**| Exibe todos os veículos cadastrados com ID, Marca, Modelo, Ano e Preço. |
 
 ---
@@ -53,6 +55,8 @@ O objetivo é aplicar práticas de **gestão de qualidade de software** e **boas
 4. Para **editar**, selecione o veículo na lista, altere os campos e clique em **Editar**.
 5. Para **remover**, selecione o veículo e clique em **Remover**.
 6. Para **limpar os campos**, clique em **Limpar Campo**.
+7. Para **pesquisar**, clique em **Pesquisar** e digite as informações do carro que esteja procurando.
+8. Para **vender**, clique em **Vender**.
 
 ---
 
