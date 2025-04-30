@@ -123,20 +123,21 @@ def iniciar_gui():
                 carro_formatado[4] = formatar_preco(carro_formatado[4])
                 tree.insert("", tk.END, values=carro_formatado)
             
-        def atualizar_lista_pesq():
-            """Carros pesquisados."""
+        def atualizar_lista_pesq(carros):
+            """Exibe os resultados da pesquisa no TreeView."""
             for item in tree.get_children():
                 tree.delete(item)
-            for carro in pesquisar_carro():
+            for carro in carros:
                 carro_formatado = list(carro)
                 carro_formatado[4] = formatar_preco(carro_formatado[4])
                 tree.insert("", tk.END, values=carro_formatado)
+
 
         def on_add():
             valores = [entry.get() for entry in entries]
             if not validar_campos(*valores):
                 return
-            pesquisar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]))
+            adicionar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]))
             atualizar_lista_pesq()
             messagebox.showinfo("Sucesso", "Carro inserido com sucesso.")
             limpar_campos(entries)
@@ -174,12 +175,27 @@ def iniciar_gui():
             #Continuar fazendo a parte de pesquisar carro
         def on_search():
             valores = [entry.get() for entry in entries]
-            if not validar_campos(*valores):
+            marca, modelo, ano, preco = valores
+
+            # Verifica ano e preco
+            try:
+                ano_int = int(ano) if ano else None
+            except ValueError:
+                messagebox.showerror("Erro", "Ano inválido.")
                 return
-            pesquisar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]))
-            atualizar_lista()
-            messagebox.showinfo("Sucesso", "Pesquisado.")
-            limpar_campos(entries)
+
+            try:
+                preco_float = float(preco) if preco else None
+            except ValueError:
+                messagebox.showerror("Erro", "Preço inválido.")
+                return
+
+            carros_filtrados = pesquisar_carro(marca, modelo, ano_int, preco_float)
+            if carros_filtrados:
+                atualizar_lista_pesq(carros_filtrados)
+            else:
+                messagebox.showinfo("Resultado", "Nenhum carro encontrado com esses critérios.")
+
 
         # Botões
         if nivel == 'ADMINISTRADOR':
@@ -189,9 +205,9 @@ def iniciar_gui():
             tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=3, padx=5)
             
         elif nivel == 'VENDEDOR':
-            tk.Button(frame_buttons, text="💲 Vender", width=12, command=on_sell).grid(row=0, column=0, padx=5)
-            tk.Button(frame_buttons, text="🔍 Pesquisar", width=12, command=on_search).grid(row=0, column=1, padx=5)
-            tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=2, padx=5)
+            tk.Button(frame_buttons, text="💲 Vender", width=12, command=on_sell).grid(row=0, column=4, padx=5)
+            tk.Button(frame_buttons, text="🔍 Pesquisar", width=12, command=on_search).grid(row=0, column=5, padx=5)
+            tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=3, padx=5)
 
         # Tabela TreeView
         tree = ttk.Treeview(root, columns=("ID", "Marca", "Modelo", "Ano", "Preço"), show="headings", height=10)
