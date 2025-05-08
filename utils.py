@@ -1,7 +1,8 @@
 # utils.py
 # Funções auxiliares para a interface gráfica
 
-from tkinter import messagebox
+from logging import root
+from tkinter import messagebox, ttk
 
 def limpar_campos(entries):
     """Limpa todos os campos de entrada (Entry)."""
@@ -47,3 +48,12 @@ def formatar_preco(preco):
         return f"{float(preco):,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
     except ValueError:
         return preco
+
+
+def vender_carro(carro):
+    if carro:
+        print("Carro encontrado:", carro)  # Esta recebendo o carro falta colocar na TreeView com os preços
+        return carro
+    else:
+        print("Carro não encontrado.")
+        return None
