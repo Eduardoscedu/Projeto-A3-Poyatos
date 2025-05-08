@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from database import criar_tabelas, adicionar_carro, listar_carros, remover_carro, editar_carro
-from database import autenticar_usuario, registrar_usuario, pesquisar_carro
+from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
 
 def iniciar_gui():
@@ -171,8 +171,16 @@ def iniciar_gui():
             if not selected:
                 messagebox.showwarning("Aviso", "Selecione um carro para Vender.")
                 return
+            carro_id = tree.item(selected, "values")[0]
+            tela_vender(carro_id)
+
+        def tela_vender(carro_id):
+            janela_vender = tk.Toplevel()
+            janela_vender.title("Vender Carro")
+            janela_vender.geometry("360x360")
+            janela_vender.resizable(False, False)
+            buscar_carro_por_id(carro_id)
             
-            #Continuar fazendo a parte de pesquisar carro
         def on_search():
             valores = [entry.get() for entry in entries]
             marca, modelo, ano, preco = valores
