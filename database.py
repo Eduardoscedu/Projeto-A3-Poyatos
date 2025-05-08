@@ -2,6 +2,8 @@
 # Responsável pelas operações no banco de dados (SQLite)
 
 import sqlite3
+from utils import vender_carro
+
 
 def conectar_banco():
     """Cria uma conexão com o banco de dados SQLite."""
@@ -76,6 +78,8 @@ def remover_carro(carro_id):
     conn.commit()
     conn.close()
 
+    
+
 def editar_carro(carro_id, marca, modelo, ano, preco):
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -136,3 +140,11 @@ def registrar_usuario(nome, senha, key):
             return False, "Nome de usuário já existe."
     else:
         return False, "Key inválida."
+
+def buscar_carro_por_id(carro_id):
+    conn = sqlite3.connect("loja_carros.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, marca, modelo, ano, preco FROM carros WHERE id = ?", (carro_id,))
+    carro = cursor.fetchone()
+    conn.close()
+    return vender_carro(carro)
