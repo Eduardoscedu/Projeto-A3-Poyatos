@@ -216,17 +216,31 @@ def iniciar_gui():
                     preco_formatado      # Preço
                 ]
 
+                preco_sem_formato = preco_formatado.split(',')[0].replace('.', '')
+                preco = int(preco_sem_formato)
+
                 car.insert("", tk.END, iid=carro[0], values=valores)
 
-                # Listbox com opções de parcelamento
-                lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
-                
-                juros = 0.00025  # 0,025% ao mês
-                for i in range(2, 13):
-                    valor_total_com_juros = preco_total * ((1 + juros) ** i)
-                    valor_parcela = valor_total_com_juros / i
-                    lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
-                lista_parcelas.pack(pady=10)
+                if preco <= 70000:
+
+                    # Listbox com opções de parcelamento
+                    lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
+                    
+                    juros = 0.0025  # 0,025% ao mês
+                    for i in range(2, 13):
+                        valor_total_com_juros = preco_total * ((1 + juros) ** i)
+                        valor_parcela = valor_total_com_juros / i
+                        lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
+                    lista_parcelas.pack(pady=10)
+                elif preco > 70000:
+                    lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
+                    
+                    juros = 0.0025  # 0,025% ao mês
+                    for i in range(2, 25):
+                        valor_total_com_juros = preco_total * ((1 + juros) ** i)
+                        valor_parcela = valor_total_com_juros / i
+                        lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
+                    lista_parcelas.pack(pady=10)
 
 
 
