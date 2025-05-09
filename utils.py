@@ -52,8 +52,6 @@ def formatar_preco(preco):
 
 def vender_carro(carro):
     if carro:
-        print("Carro encontrado:", carro)  # Esta recebendo o carro falta colocar na TreeView com os preços
         return carro
     else:
-        print("Carro não encontrado.")
         return None
