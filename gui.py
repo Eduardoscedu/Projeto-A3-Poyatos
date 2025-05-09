@@ -174,12 +174,30 @@ def iniciar_gui():
             carro_id = tree.item(selected, "values")[0]
             tela_vender(carro_id)
 
+            #Tela de Vender o carros
         def tela_vender(carro_id):
             janela_vender = tk.Toplevel()
             janela_vender.title("Vender Carro")
-            janela_vender.geometry("360x360")
+            janela_vender.geometry("480x480")
             janela_vender.resizable(False, False)
-            buscar_carro_por_id(carro_id)
+            
+            carro = buscar_carro_por_id(carro_id)
+            
+            car = ttk.Treeview(janela_vender, columns=("Marca", "Modelo", "Ano", "Preço"), show="headings", height=10)
+            colunas = [("Marca", 110), ("Modelo", 110), ("Ano", 100), ("Preço", 110)]
+            
+            for nome, largura in colunas:
+                car.heading(nome, text=nome)
+                car.column(nome, anchor=tk.CENTER, width=largura)
+            car.pack(pady=10, fill=tk.BOTH, expand=True)
+            
+            # Insere o carro na tabela se for encontrado
+            if carro:
+                carro_formatado = list(carro)
+                carro_formatado[4] = formatar_preco(carro_formatado[4])
+                car.insert("", tk.END, iid=carro[0], values=carro_formatado[1:])
+
+
             
         def on_search():
             valores = [entry.get() for entry in entries]
@@ -203,7 +221,6 @@ def iniciar_gui():
                 atualizar_lista_pesq(carros_filtrados)
             else:
                 messagebox.showinfo("Resultado", "Nenhum carro encontrado com esses critérios.")
-
 
         # Botões
         if nivel == 'ADMINISTRADOR':
