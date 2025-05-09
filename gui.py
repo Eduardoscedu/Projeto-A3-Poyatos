@@ -138,7 +138,7 @@ def iniciar_gui():
             if not validar_campos(*valores):
                 return
             adicionar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]))
-            atualizar_lista_pesq()
+            atualizar_lista()
             messagebox.showinfo("Sucesso", "Carro inserido com sucesso.")
             limpar_campos(entries)
 
@@ -178,24 +178,56 @@ def iniciar_gui():
         def tela_vender(carro_id):
             janela_vender = tk.Toplevel()
             janela_vender.title("Vender Carro")
-            janela_vender.geometry("480x480")
+            janela_vender.geometry("480x500")
             janela_vender.resizable(False, False)
-            
+
             carro = buscar_carro_por_id(carro_id)
-            
-            car = ttk.Treeview(janela_vender, columns=("Marca", "Modelo", "Ano", "Preço"), show="headings", height=10)
-            colunas = [("Marca", 110), ("Modelo", 110), ("Ano", 100), ("Preço", 110)]
-            
+
+            # Treeview sem a coluna de ID
+            car = ttk.Treeview(
+                janela_vender,
+                columns=("Marca", "Modelo", "Ano", "Preço"),
+                show="headings",
+                height=10
+            )
+
+            colunas = [
+                ("Marca", 100),
+                ("Modelo", 100),
+                ("Ano", 80),
+                ("Preço", 100)
+            ]
+
             for nome, largura in colunas:
                 car.heading(nome, text=nome)
                 car.column(nome, anchor=tk.CENTER, width=largura)
+
             car.pack(pady=10, fill=tk.BOTH, expand=True)
-            
-            # Insere o carro na tabela se for encontrado
+
             if carro:
                 carro_formatado = list(carro)
-                carro_formatado[4] = formatar_preco(carro_formatado[4])
-                car.insert("", tk.END, iid=carro[0], values=carro_formatado[1:])
+                preco_total = carro_formatado[4]
+                preco_formatado = formatar_preco(preco_total)
+
+                valores = [
+                    carro_formatado[1],  # Marca
+                    carro_formatado[2],  # Modelo
+                    carro_formatado[3],  # Ano
+                    preco_formatado      # Preço
+                ]
+
+                car.insert("", tk.END, iid=carro[0], values=valores)
+
+                # Listbox com opções de parcelamento
+                lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
+                
+                juros = 0.00025  # 0,025% ao mês
+                for i in range(2, 13):
+                    valor_total_com_juros = preco_total * ((1 + juros) ** i)
+                    valor_parcela = valor_total_com_juros / i
+                    lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
+                lista_parcelas.pack(pady=10)
+
 
 
             
