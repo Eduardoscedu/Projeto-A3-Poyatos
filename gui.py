@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from database import criar_tabelas, adicionar_carro, listar_carros, remover_carro, editar_carro
-from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
+from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id, carro_vendido
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
 
 def iniciar_gui():
@@ -226,7 +226,7 @@ def iniciar_gui():
                     # Listbox com opções de parcelamento
                     lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
                     
-                    juros = 0.0025  # 0,025% ao mês
+                    juros = 0.025  # 0,025% ao mês
                     for i in range(2, 13):
                         valor_total_com_juros = preco_total * ((1 + juros) ** i)
                         valor_parcela = valor_total_com_juros / i
@@ -235,12 +235,44 @@ def iniciar_gui():
                 elif preco > 70000:
                     lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
                     
-                    juros = 0.0025  # 0,025% ao mês
+                    juros = 0.025  # 0,025% ao mês
                     for i in range(2, 25):
                         valor_total_com_juros = preco_total * ((1 + juros) ** i)
                         valor_parcela = valor_total_com_juros / i
                         lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
                     lista_parcelas.pack(pady=10)
+
+                # Função chamada quando uma opção da Listbox é selecionada
+                def ao_selecionar_parcela(event):
+                    selecao = lista_parcelas.curselection()
+                    if selecao:
+                        parcela_escolhida = lista_parcelas.get(selecao[0])
+
+                        # Pegamos os dados diretamente da Treeview
+                        dados_carro = car.item(car.get_children()[0], "values")
+                        marca, modelo, ano, preco = dados_carro
+
+                        # Monta a mensagem com todas as informações
+                        mensagem = (
+                            f"🚗 Confirma a venda do carro: 🚗\n\n"
+                            f"Marca: {marca}\n"
+                            f"Modelo: {modelo}\n"
+                            f"Ano: {ano}\n"
+                            f"Preço à vista: {preco}\n\n"
+                            f"Forma de pagamento selecionada: {parcela_escolhida}"
+                        )
+
+                        resposta = messagebox.askyesno("Confirmar Venda", mensagem)
+                        if resposta:
+                            messagebox.showinfo("Venda Realizada", f"Venda concluída com sucesso!")
+                            remover_carro(carro_id)
+                            atualizar_lista()
+                            janela_vender.destroy()
+
+                
+                lista_parcelas.bind("<<ListboxSelect>>", ao_selecionar_parcela)
+
+
 
 
 
