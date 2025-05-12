@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from database import criar_tabelas, adicionar_carro, listar_carros, remover_carro, editar_carro
-from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id, carro_vendido
+from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
 
 def iniciar_gui():
@@ -44,6 +44,8 @@ def iniciar_gui():
         limpar_tela()
         frame = tk.Frame(root)
         frame.pack(expand=True)
+        root.title("Login - Loja de Carros")
+        root.geometry("400x400")
 
         tk.Label(frame, text="Login", font=("Arial", 16)).pack(pady=10)
         usuario_entry = criar_entry_placeholder(frame, "Usuário")
@@ -110,6 +112,7 @@ def iniciar_gui():
             entry.grid(row=1, column=i, padx=5)
             entries.append(entry)
 
+
         # Botões de ação
         frame_buttons = tk.Frame(root)
         frame_buttons.pack(pady=5)
@@ -141,6 +144,9 @@ def iniciar_gui():
             atualizar_lista()
             messagebox.showinfo("Sucesso", "Carro inserido com sucesso.")
             limpar_campos(entries)
+        
+        def on_back():
+            tela_login()
 
         def on_edit():
             selected = tree.selection()
@@ -302,12 +308,14 @@ def iniciar_gui():
 
         # Botões
         if nivel == 'ADMINISTRADOR':
+            tk.Button(frame_buttons, text="↩ Voltar", width=12, command=on_back).grid(row=0, column=0, padx=5)
             tk.Button(frame_buttons, text="➕ Adicionar", width=12, command=on_add).grid(row=0, column=0, padx=5)
             tk.Button(frame_buttons, text="✏️ Editar", width=12, command=on_edit).grid(row=0, column=1, padx=5)
             tk.Button(frame_buttons, text="🗑️ Remover", width=12, command=on_delete).grid(row=0, column=2, padx=5)
             tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=3, padx=5)
             
         elif nivel == 'VENDEDOR':
+            tk.Button(frame_buttons, text="↩ Voltar", width=12, command=on_back).grid(row=0, column=0, padx=5)
             tk.Button(frame_buttons, text="💲 Vender", width=12, command=on_sell).grid(row=0, column=4, padx=5)
             tk.Button(frame_buttons, text="🔍 Pesquisar", width=12, command=on_search).grid(row=0, column=5, padx=5)
             tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=3, padx=5)
