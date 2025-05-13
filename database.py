@@ -21,7 +21,8 @@ def criar_tabelas():
             marca TEXT NOT NULL,
             modelo TEXT NOT NULL,
             ano INTEGER NOT NULL,
-            preco REAL NOT NULL
+            preco REAL NOT NULL,
+            chassi TEXT
         )
     ''')
 
@@ -44,6 +45,18 @@ def criar_tabelas():
         )
     ''')
 
+    # Criação da tabela de Historico de vendas
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS historico (
+            marca TEXT NOT NULL,
+            modelo TEXT NOT NULL,
+            ano INTEGER NOT NULL,
+            preco REAL NOT NULL,
+            chassi TEXT,
+            nome TEXT NOT NULL UNIQUE
+        )
+    ''')
+
     # Inserção de chaves padrão (se ainda não existirem)
     keys_validas = [('123', 'VENDEDOR'), ('456', 'ADMINISTRADOR')]
     for key, nivel in keys_validas:
@@ -55,10 +68,10 @@ def criar_tabelas():
     conn.close()
 
 # Operações para carros
-def adicionar_carro(marca, modelo, ano, preco):
+def adicionar_carro(marca, modelo, ano, preco, vin):
     conn = conectar_banco()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO carros (marca, modelo, ano, preco) VALUES (?, ?, ?, ?)", (marca, modelo, ano, preco))
+    cursor.execute("INSERT INTO carros (marca, modelo, ano, preco, chassi) VALUES (?, ?, ?, ?, ?)", (marca, modelo, ano, preco, vin))
     conn.commit()
     conn.close()
 
@@ -148,3 +161,10 @@ def buscar_carro_por_id(carro_id):
     carro = cursor.fetchone()
     conn.close()
     return vender_carro(carro)
+
+def inserir_historico(marca, modelo, ano, preco, ultimo_chassi_adicionado, nome_vendedor):
+    conn = sqlite3.connect("loja_carros.db")
+    cursor = conn.cursor()
+    #Continuar a inserção do historico
+    cursor.execute("INSERT INTO historico (marca, modelo, ano, preco, chassi, nome) VALUES (?, ?, ?, ?, ?, ?)", (marca, modelo, ano, preco, ultimo_chassi_adicionado, nome_vendedor))
+    conn.close()
