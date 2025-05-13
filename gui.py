@@ -2,10 +2,14 @@
 # Interface gráfica principal do sistema
 
 import tkinter as tk
+import random
+import string
 from tkinter import ttk, messagebox
-from database import criar_tabelas, adicionar_carro, listar_carros, remover_carro, editar_carro
+from database import criar_tabelas, adicionar_carro, inserir_historico, listar_carros, remover_carro, editar_carro
 from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
+ultimo_chassi_adicionado = None
+nome_vendedor = None
 
 def iniciar_gui():
     """Inicia toda a aplicação gráfica."""
@@ -13,6 +17,7 @@ def iniciar_gui():
     root = tk.Tk()
     root.title("Login - Loja de Carros")
     root.geometry("400x400")
+
 
     # Função para criar campos de entrada com placeholders
     def criar_entry_placeholder(parent, placeholder, show=None):
@@ -59,6 +64,8 @@ def iniciar_gui():
                 return
             resultado = autenticar_usuario(nome, senha)
             if resultado:
+                global nome_vendedor
+                nome_vendedor = nome
                 tela_loja(nome, resultado[0])
             else:
                 messagebox.showerror("Erro", "Usuário ou senha inválidos.")
@@ -75,14 +82,19 @@ def iniciar_gui():
         tk.Label(frame, text="Registrar", font=("Arial", 16)).pack(pady=10)
         usuario_entry = criar_entry_placeholder(frame, "Usuário")
         senha_entry = criar_entry_placeholder(frame, "Crie sua senha", show="*")
+        retry_senha_entry = criar_entry_placeholder(frame, "Repita sua senha", show="*")
         key_entry = criar_entry_placeholder(frame, "Digite a chave de acesso")
 
         def tentar_registro():
             nome = usuario_entry.get()
             senha = senha_entry.get()
+            repetição_senha = retry_senha_entry.get()
             key = key_entry.get()
             if nome == "Usuário" or senha == "Crie sua senha" or key == "Digite a chave de acesso":
                 messagebox.showerror("Erro", "Preencha todos os campos.")
+                return
+            if senha != repetição_senha:
+                messagebox.showerror("Erro", "Senhas diferentes!!.")
                 return
             sucesso, mensagem = registrar_usuario(nome, senha, key)
             if sucesso:
@@ -140,7 +152,11 @@ def iniciar_gui():
             valores = [entry.get() for entry in entries]
             if not validar_campos(*valores):
                 return
-            adicionar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]))
+            letras_numeros = string.ascii_uppercase.replace("I", "").replace("O", "").replace("Q", "") + string.digits
+            vin = ''.join(random.choices(letras_numeros, k=17))
+            global ultimo_chassi_adicionado
+            ultimo_chassi_adicionado = vin
+            adicionar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]), str(vin))
             atualizar_lista()
             messagebox.showinfo("Sucesso", "Carro inserido com sucesso.")
             limpar_campos(entries)
@@ -198,10 +214,10 @@ def iniciar_gui():
             )
 
             colunas = [
-                ("Marca", 100),
-                ("Modelo", 100),
-                ("Ano", 80),
-                ("Preço", 100)
+                ("Marca", 70),
+                ("Modelo", 70),
+                ("Ano", 50),
+                ("Preço", 70)
             ]
 
             for nome, largura in colunas:
@@ -273,11 +289,16 @@ def iniciar_gui():
                             messagebox.showinfo("Venda Realizada", f"Venda concluída com sucesso!")
                             remover_carro(carro_id)
                             atualizar_lista()
+
+                            #Inserção do Historico
+                            global ultimo_chassi_adicionado
+                            global nome_vendedor
+                            inserir_historico(marca, modelo, ano, preco, ultimo_chassi_adicionado, nome_vendedor)
                             janela_vender.destroy()
-
-                
                 lista_parcelas.bind("<<ListboxSelect>>", ao_selecionar_parcela)
+            
 
+            
 
 
 
@@ -309,10 +330,10 @@ def iniciar_gui():
         # Botões
         if nivel == 'ADMINISTRADOR':
             tk.Button(frame_buttons, text="↩ Voltar", width=12, command=on_back).grid(row=0, column=0, padx=5)
-            tk.Button(frame_buttons, text="➕ Adicionar", width=12, command=on_add).grid(row=0, column=0, padx=5)
-            tk.Button(frame_buttons, text="✏️ Editar", width=12, command=on_edit).grid(row=0, column=1, padx=5)
-            tk.Button(frame_buttons, text="🗑️ Remover", width=12, command=on_delete).grid(row=0, column=2, padx=5)
-            tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=3, padx=5)
+            tk.Button(frame_buttons, text="➕ Adicionar", width=12, command=on_add).grid(row=0, column=1, padx=5)
+            tk.Button(frame_buttons, text="✏️ Editar", width=12, command=on_edit).grid(row=0, column=2, padx=5)
+            tk.Button(frame_buttons, text="🗑️ Remover", width=12, command=on_delete).grid(row=0, column=3, padx=5)
+            tk.Button(frame_buttons, text="🆑 Limpar Campos", width=12, command=lambda: limpar_campos(entries)).grid(row=0, column=4, padx=5)
             
         elif nivel == 'VENDEDOR':
             tk.Button(frame_buttons, text="↩ Voltar", width=12, command=on_back).grid(row=0, column=0, padx=5)
