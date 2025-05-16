@@ -5,10 +5,10 @@ import tkinter as tk
 import random
 import string
 from tkinter import ttk, messagebox
-from database import criar_tabelas, adicionar_carro, inserir_historico, listar_carros, remover_carro, editar_carro
+from database import criar_tabelas, adicionar_carro, registrar_venda, listar_carros, remover_carro, editar_carro
 from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
-ultimo_chassi_adicionado = None
+
 nome_vendedor = None
 
 def iniciar_gui():
@@ -154,8 +154,6 @@ def iniciar_gui():
                 return
             letras_numeros = string.ascii_uppercase.replace("I", "").replace("O", "").replace("Q", "") + string.digits
             vin = ''.join(random.choices(letras_numeros, k=17))
-            global ultimo_chassi_adicionado
-            ultimo_chassi_adicionado = vin
             adicionar_carro(valores[0], valores[1], int(valores[2]), float(valores[3]), str(vin))
             atualizar_lista()
             messagebox.showinfo("Sucesso", "Carro inserido com sucesso.")
@@ -291,9 +289,9 @@ def iniciar_gui():
                             atualizar_lista()
 
                             #Inserção do Historico
-                            global ultimo_chassi_adicionado
+                            id_carro_vendido =  carro_formatado[0]
                             global nome_vendedor
-                            inserir_historico(marca, modelo, ano, preco, ultimo_chassi_adicionado, nome_vendedor)
+                            registrar_venda(marca, modelo, ano, preco, id_carro_vendido, nome_vendedor)
                             janela_vender.destroy()
                 lista_parcelas.bind("<<ListboxSelect>>", ao_selecionar_parcela)
             
