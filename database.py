@@ -5,6 +5,7 @@ import sqlite3
 from utils import vender_carro
 
 
+
 def conectar_banco():
     """Cria uma conexão com o banco de dados SQLite."""
     return sqlite3.connect('loja_carros.db')
@@ -53,7 +54,8 @@ def criar_tabelas():
             ano INTEGER NOT NULL,
             preco REAL NOT NULL,
             chassi TEXT,
-            nome TEXT NOT NULL UNIQUE
+            id_vendedor INTEGER,
+            FOREIGN KEY (id_vendedor) REFERENCES usuarios(id)
         )
     ''')
 
@@ -162,9 +164,17 @@ def buscar_carro_por_id(carro_id):
     conn.close()
     return vender_carro(carro)
 
-def inserir_historico(marca, modelo, ano, preco, ultimo_chassi_adicionado, nome_vendedor):
+
+def registrar_venda(marca, modelo, ano, preco, id_carro_vendido, nome_vendedor):
     conn = sqlite3.connect("loja_carros.db")
     cursor = conn.cursor()
-    #Continuar a inserção do historico
-    cursor.execute("INSERT INTO historico (marca, modelo, ano, preco, chassi, nome) VALUES (?, ?, ?, ?, ?, ?)", (marca, modelo, ano, preco, ultimo_chassi_adicionado, nome_vendedor))
+    cursor.execute("SELECT chassi FROM carros WHERE id = ?", (id_carro_vendido,))
+    chassi = cursor.fetchone()
+    #Pega o ID do vendedor que efetuou a venda
+    cursor.execute("SELECT id FROM usuarios where nome = ?", (nome_vendedor,))
+    id_vendedor = cursor.fetchone()
+    if id_vendedor:
+        id_vendedor = id_vendedor[0]
+    cursor.execute("INSERT INTO historico (marca, modelo, ano, preco, chassi, id_vendedor) VALUES (?, ?, ?, ?, ?, ?)", (marca, modelo, ano, preco, chassi, id_vendedor))
+    conn.commit()
     conn.close()
