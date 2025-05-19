@@ -159,17 +159,15 @@ def registrar_usuario(nome, senha, key):
 def buscar_carro_por_id(carro_id):
     conn = sqlite3.connect("loja_carros.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT id, marca, modelo, ano, preco FROM carros WHERE id = ?", (carro_id,))
+    cursor.execute("SELECT id, marca, modelo, ano, preco, chassi FROM carros WHERE id = ?", (carro_id,))
     carro = cursor.fetchone()
     conn.close()
     return vender_carro(carro)
 
 
-def registrar_venda(marca, modelo, ano, preco, id_carro_vendido, nome_vendedor):
+def registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi):
     conn = sqlite3.connect("loja_carros.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT chassi FROM carros WHERE id = ?", (id_carro_vendido,))
-    chassi = cursor.fetchone()
     #Pega o ID do vendedor que efetuou a venda
     cursor.execute("SELECT id FROM usuarios where nome = ?", (nome_vendedor,))
     id_vendedor = cursor.fetchone()
