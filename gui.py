@@ -12,6 +12,13 @@ from utils import limpar_campos, preencher_campos, validar_campos, formatar_prec
 
 nome_vendedor = None
 
+marcas_carros = [
+    "Chevrolet", "Fiat", "Ford", "Honda", "Hyundai", "Jeep", "Nissan",
+    "Peugeot", "Renault", "Toyota", "Volkswagen", "BMW", "Mercedes-Benz",
+    "Audi", "Kia", "Mitsubishi", "Citroën", "Suzuki", "Subaru", "Volvo"
+]
+
+
 def iniciar_gui():
     """Inicia toda a aplicação gráfica."""
     criar_tabelas()
@@ -154,9 +161,44 @@ def iniciar_gui():
         entries = []
         for i, label in enumerate(labels):
             tk.Label(frame_inputs, text=label).grid(row=0, column=i, padx=5)
-            entry = tk.Entry(frame_inputs)
-            entry.grid(row=1, column=i, padx=5)
-            entries.append(entry)
+            if label == "Marca":
+                entry_marca = tk.Entry(frame_inputs)
+                entry_marca.grid(row=1, column=i, padx=5)
+                entries.append(entry_marca)
+
+                listbox_sugestoes = tk.Listbox(frame_inputs, height=5, width=15)
+                listbox_sugestoes.grid(row=2, column=i, padx=5, pady=(5, 0))  # espaço superior de 05 pixels
+
+                listbox_sugestoes.grid_remove()  # Esconde inicialmente
+
+                def atualizar_sugestoes(event):
+                    texto_marca = entry_marca.get().lower()
+                    listbox_sugestoes.delete(0, tk.END)
+                    if texto_marca:
+                        sugeridas = [m for m in marcas_carros if texto_marca in m.lower()]
+                        if sugeridas:
+                            for marca in sugeridas:
+                                listbox_sugestoes.insert(tk.END, marca)
+                            listbox_sugestoes.grid()  # Mostrar sugestões
+                        else:
+                            listbox_sugestoes.grid_remove()
+                    else:
+                        listbox_sugestoes.grid_remove()
+
+                def selecionar_sugestao(event):
+                    selecionado = listbox_sugestoes.get(tk.ANCHOR)
+                    entry_marca.delete(0, tk.END)
+                    entry_marca.insert(0, selecionado)
+                    listbox_sugestoes.grid_remove()
+
+                entry_marca.bind("<KeyRelease>", atualizar_sugestoes)
+                listbox_sugestoes.bind("<<ListboxSelect>>", selecionar_sugestao)
+
+            else:
+                entry = tk.Entry(frame_inputs)
+                entry.grid(row=1, column=i, padx=5)
+                entries.append(entry)
+
 
 
         # Botões de ação
@@ -229,6 +271,7 @@ def iniciar_gui():
             tela_vender(carro_id)
 
             #Tela de Vender o carros
+        
         def tela_vender(carro_id):
             janela_vender = tk.Toplevel()
             janela_vender.title("Vender Carro")
