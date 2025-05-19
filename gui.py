@@ -5,6 +5,7 @@ import tkinter as tk
 import random
 import string
 from tkinter import ttk, messagebox
+from PIL import Image, ImageTk
 from database import criar_tabelas, adicionar_carro, registrar_venda, listar_carros, remover_carro, editar_carro
 from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
@@ -17,8 +18,7 @@ def iniciar_gui():
     root = tk.Tk()
     root.title("Login - Loja de Carros")
     root.geometry("400x400")
-
-
+   
     # Função para criar campos de entrada com placeholders
     def criar_entry_placeholder(parent, placeholder, show=None):
         entry = tk.Entry(parent, font=("Arial", 12))
@@ -52,6 +52,16 @@ def iniciar_gui():
         root.title("Login - Loja de Carros")
         root.geometry("400x400")
 
+        imagem_fundo = Image.open("Background_image.png")
+        imagem_fundo = imagem_fundo.resize((400, 400))  # Redimensiona para o tamanho da janela
+        imagem_fundo_tk = ImageTk.PhotoImage(imagem_fundo)
+
+        label_fundo = tk.Label(root, image=imagem_fundo_tk)
+        label_fundo.image = imagem_fundo_tk
+        label_fundo.place(x=0, y=0, relwidth=1, relheight=1)
+        label_fundo.lower()  # Envia a imagem para trás
+
+
         tk.Label(frame, text="Login", font=("Arial", 16)).pack(pady=10)
         usuario_entry = criar_entry_placeholder(frame, "Usuário")
         senha_entry = criar_entry_placeholder(frame, "Senha", show="*")
@@ -68,7 +78,31 @@ def iniciar_gui():
                 nome_vendedor = nome
                 tela_loja(nome, resultado[0])
             else:
-                messagebox.showerror("Erro", "Usuário ou senha inválidos.")
+                #Usuario incorreto
+                usuario_entry.delete(0, tk.END)
+                usuario_entry.insert(0, "Usuario incorreto")
+                usuario_entry.config(fg="red", show="")
+
+                #Senha incorreto
+                senha_entry.delete(0, tk.END)
+                senha_entry.insert(0, "Senha incorreta")
+                senha_entry.config(fg="red", show="")
+
+                #Limpar para redigitação
+                def limpar_hint_usuario(event):
+                    if usuario_entry.get() == "Usuario incorreto":
+                        usuario_entry.delete(0, tk.END)
+                        usuario_entry.config(fg="black", show="")
+
+                usuario_entry.bind("<FocusIn>", limpar_hint_usuario)
+                
+                #Limpar para redigitação
+                def limpar_hint_senha(event):
+                    if senha_entry.get() == "Senha incorreta":
+                        senha_entry.delete(0, tk.END)
+                        senha_entry.config(fg="black", show="*")
+
+                senha_entry.bind("<FocusIn>", limpar_hint_senha)
 
         tk.Button(frame, text="Login", command=tentar_login).pack(pady=10)
         tk.Button(frame, text="Registrar", command=tela_registro).pack()
@@ -227,6 +261,7 @@ def iniciar_gui():
             if carro:
                 carro_formatado = list(carro)
                 preco_total = carro_formatado[4]
+                chassi = carro_formatado[5] 
                 preco_formatado = formatar_preco(preco_total)
 
                 valores = [
@@ -289,9 +324,8 @@ def iniciar_gui():
                             atualizar_lista()
 
                             #Inserção do Historico
-                            id_carro_vendido =  carro_formatado[0]
                             global nome_vendedor
-                            registrar_venda(marca, modelo, ano, preco, id_carro_vendido, nome_vendedor)
+                            registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi)
                             janela_vender.destroy()
                 lista_parcelas.bind("<<ListboxSelect>>", ao_selecionar_parcela)
             
