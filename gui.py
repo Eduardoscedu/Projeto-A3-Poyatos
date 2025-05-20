@@ -9,15 +9,10 @@ from PIL import Image, ImageTk
 from database import criar_tabelas, adicionar_carro, registrar_venda, listar_carros, remover_carro, editar_carro
 from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
+from fipe_api import listar_marcas
 
 nome_vendedor = None
-
-marcas_carros = [
-    "Chevrolet", "Fiat", "Ford", "Honda", "Hyundai", "Jeep", "Nissan",
-    "Peugeot", "Renault", "Toyota", "Volkswagen", "BMW", "Mercedes-Benz",
-    "Audi", "Kia", "Mitsubishi", "Citroën", "Suzuki", "Subaru", "Volvo"
-]
-
+marcas_carros = listar_marcas()
 
 def iniciar_gui():
     """Inicia toda a aplicação gráfica."""
@@ -175,7 +170,11 @@ def iniciar_gui():
                     texto_marca = entry_marca.get().lower()
                     listbox_sugestoes.delete(0, tk.END)
                     if texto_marca:
-                        sugeridas = [m for m in marcas_carros if texto_marca in m.lower()]
+                        #pega o nome de cada marca: m['nome'],
+                        #Converte o nome para minúsculas: .lower()
+                        #Verifica se o texto digitado (texto_marca) está dentro do nome
+                        #E adiciona o nome (m['nome']) na lista sugeridas
+                        sugeridas = [m['nome'] for m in marcas_carros if texto_marca in m['nome'].lower()]
                         if sugeridas:
                             for marca in sugeridas:
                                 listbox_sugestoes.insert(tk.END, marca)
