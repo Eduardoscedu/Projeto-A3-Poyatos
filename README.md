@@ -40,7 +40,7 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 
 ## 🗂️ **Estrutura do Projeto**
 
-```plaintext
+
 📦 loja-de-carros
 ├── main.py               # Ponto de entrada do programa
 ├── gui.py                # Interface gráfica (Tkinter)
@@ -51,54 +51,52 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 ├── Background_image.png  # Imagem de fundo da tela de login
 └── README.md             # Documentação do projeto
 
-🔧 Tecnologias Utilizadas
-🐍 Python 3.10+
 
-🎨 Tkinter — Interface gráfica
+## 🔧 **Tecnologias Utilizadas**
 
-🗄️ SQLite — Banco de dados local
+- 🐍 Python 3.10+
+- 🎨 Tkinter — Interface gráfica
+- 🗄️ SQLite — Banco de dados local
+- 🌐 API FIPE — Dados de marcas e modelos de veículos
+- 🖼️ Pillow (PIL) — Manipulação de imagem no Tkinter
+- 🔗 Requests — Consumo de APIs
 
-🌐 API FIPE — Dados de marcas e modelos de veículos
 
-🖼️ Pillow (PIL) — Manipulação de imagem no Tkinter
+## 🚀 **Como Executar Localmente** 
 
-🔗 Requests — Consumo de APIs
-
-🚀 Como Executar Localmente
-1️⃣ Clone o repositório
-bash
-Copiar
-Editar
-git clone https://github.com/seu-usuario/loja-de-carros.git
-cd loja-de-carros
-2️⃣ Instale as dependências
+1️⃣ **Clone o repositório**
+- bash
+- Copiar
+- Editar
+- git clone https://github.com/seu-usuario/loja-de-carros.git
+- cd loja-de-carros
+- 
+2️⃣ **Instale as dependências**
 bash
 Copiar
 Editar
 pip install pillow
 pip install requests
-3️⃣ Execute o sistema
+
+3️⃣ **Execute o sistema**
 bash
 Copiar
 Editar
 python main.py
 Ao executar, o banco de dados loja_carros.db será criado automaticamente.
 
-🔑 Chaves de Acesso (para registro)
-🔑 Chave	🔐 Nível de Acesso
+##🔑 **Chaves de Acesso (para registro)**
+##🔑 **Chave	🔐 Nível de Acesso**
 123	VENDEDOR
 456	ADMINISTRADOR
 
-🏦 Banco de Dados
+### 🏦 **Banco de Dados**
 Criação automática (loja_carros.db)
 
-Tabelas:
+**Tabelas:**
+- carros
+-usuarios
+-keys_acesso
+-historico (vendas)
 
-carros
-
-usuarios
-
-keys_acesso
-
-historico (vendas)
-
+```plaintext
