@@ -40,7 +40,6 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 
 ## 🗂️ **Estrutura do Projeto**
 
-
 📦 loja-de-carros
 ├── main.py               # Ponto de entrada do programa
 ├── gui.py                # Interface gráfica (Tkinter)
