@@ -38,8 +38,9 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 
 ---
 
-## 🗂️ **Estrutura do Projeto**
+## 🗂️ Estrutura do Projeto
 
+```plaintext
 📦 loja-de-carros
 ├── main.py               # Ponto de entrada do programa
 ├── gui.py                # Interface gráfica (Tkinter)
@@ -49,7 +50,7 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 ├── loja_carros.db        # Banco SQLite (gerado automaticamente)
 ├── Background_image.png  # Imagem de fundo da tela de login
 └── README.md             # Documentação do projeto
-
+```
 
 ## 🔧 **Tecnologias Utilizadas**
 
