@@ -1,54 +1,52 @@
-🚗 Loja de Carros - Sistema de Gestão
-Sistema de gestão de uma loja de carros com interface gráfica desenvolvida em Python utilizando Tkinter, SQLite e integração com a API da Tabela FIPE para consulta de marcas e modelos de veículos.
+# 🚗 Loja de Carros — Sistema de Gestão em Python
 
-📜 Descrição
-O projeto simula uma loja de carros, permitindo que usuários realizem:
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python" />
+  <img src="https://img.shields.io/badge/Tkinter-GUI-lightgrey?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite" />
+  <img src="https://img.shields.io/badge/API-FIPE-blueviolet?style=for-the-badge" />
+</p>
 
-✅ Login e registro com controle de acesso (VENDEDOR e ADMINISTRADOR)
+---
 
-✅ Cadastro de veículos (marca, modelo, ano, preço)
+## 🎯 **Sobre o Projeto**
 
-✅ Pesquisa de veículos disponíveis na loja
+O **Loja de Carros** é um sistema de gestão de veículos com interface gráfica desenvolvido em **Python** utilizando **Tkinter**, **SQLite** e integração com a **API pública da Tabela FIPE**.
 
-✅ Venda de veículos com geração de parcelamento
+Permite o gerenciamento completo de estoque de carros, controle de vendas, pesquisa por veículos, além de registro e autenticação de usuários com diferentes níveis de acesso (Vendedor e Administrador).
 
-✅ Controle de estoque (adicionar, editar e remover veículos)
+---
 
-✅ Histórico de vendas com registro do vendedor
+## 📸 **Demonstração**
 
-✅ Sugestão automática de marcas e modelos através da API da FIPE
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/yourimage.png" width="600"/>
+</p>
 
-🗂️ Estrutura do Projeto
-plaintext
-Copiar
-Editar
-.
-├── main.py             # Ponto de entrada principal do programa
-├── gui.py              # Interface gráfica do sistema (Tkinter)
-├── database.py         # Operações e manipulação do banco de dados SQLite
-├── utils.py            # Funções auxiliares (validação, formatação, etc.)
-├── fipe_api.py         # Integração com a API pública da Tabela FIPE
-├── loja_carros.db      # Banco de dados SQLite (gerado automaticamente)
-├── Background_image.png# Imagem de fundo da tela de login
-└── README.md           # Documentação do projeto
-🔧 Tecnologias Utilizadas
-🐍 Python 3.x
+---
 
-🖼️ Tkinter (Interface gráfica)
+## 🏗️ **Funcionalidades**
 
-🗄️ SQLite (Banco de dados local)
+- 🔑 **Login e Registro com controle de acesso**
+- 🚗 **Cadastro de carros** (marca, modelo, ano, preço)
+- 🔍 **Pesquisa inteligente** com filtros
+- ✏️ **Edição e atualização de informações dos veículos**
+- 🗑️ **Remoção de veículos do estoque**
+- 💰 **Venda de carros com cálculo de parcelamento**
+- 📜 **Histórico de vendas registrado com o vendedor**
+- 🌐 **Integração com a API da Tabela FIPE** para autocomplete de marcas e modelos
 
-🌐 API Tabela FIPE (Consulta de marcas e modelos)
+---
 
-🎨 Pillow (PIL) (Manipulação de imagem no Tkinter)
+## 🗂️ **Estrutura do Projeto**
 
-🚀 Funcionalidades
-Funcionalidade	Descrição
-🔑 Login/Registro	Acesso restrito por perfil (Vendedor/Admin) com chave de acesso no registro.
-🚗 Cadastro de Carros	Adicionar veículos com informações de marca, modelo, ano e preço.
-🔍 Pesquisa	Busca de veículos por marca, modelo, ano ou preço.
-✏️ Edição	Permite editar informações dos veículos.
-🗑️ Remoção	Remove carros do estoque.
-💰 Venda	Simula venda, gera opções de parcelamento e registra no histórico.
-📜 Histórico de Vendas	Armazena vendas feitas e quem foi o vendedor.
-🌐 Sugestões dinâmicas	Autocomplete de marcas e modelos via API FIPE.
+```plaintext
+📦 loja-de-carros
+├── main.py               # Ponto de entrada do programa
+├── gui.py                # Interface gráfica (Tkinter)
+├── database.py           # Gerenciamento do banco SQLite
+├── utils.py              # Funções auxiliares
+├── fipe_api.py           # Integração com API da Tabela FIPE
+├── loja_carros.db        # Banco SQLite (gerado automaticamente)
+├── Background_image.png  # Imagem de fundo da tela de login
+└── README.md             # Documentação do projeto
