@@ -1,87 +1,54 @@
-# 🚗 Loja de Carros - CRUD
+🚗 Loja de Carros - Sistema de Gestão
+Sistema de gestão de uma loja de carros com interface gráfica desenvolvida em Python utilizando Tkinter, SQLite e integração com a API da Tabela FIPE para consulta de marcas e modelos de veículos.
 
-> Sistema desenvolvido para a disciplina **A3 - Gestão e Qualidade de Software**.
+📜 Descrição
+O projeto simula uma loja de carros, permitindo que usuários realizem:
 
----
+✅ Login e registro com controle de acesso (VENDEDOR e ADMINISTRADOR)
 
-## 📋 Sobre o Projeto
+✅ Cadastro de veículos (marca, modelo, ano, preço)
 
-O **Loja de Carros - CRUD** é um sistema desktop que permite o cadastro, edição, remoção e listagem de veículos.  
-Desenvolvido em **Python** utilizando **Tkinter** para a interface gráfica.
+✅ Pesquisa de veículos disponíveis na loja
 
-O objetivo é aplicar práticas de **gestão de qualidade de software** e **boas práticas de desenvolvimento**.
+✅ Venda de veículos com geração de parcelamento
 
----
+✅ Controle de estoque (adicionar, editar e remover veículos)
 
-## 🛠️ Tecnologias Utilizadas
+✅ Histórico de vendas com registro do vendedor
 
-- [Python 3.x](https://www.python.org/)
-- [Tkinter](https://docs.python.org/3/library/tkinter.html) (biblioteca gráfica nativa do Python)
+✅ Sugestão automática de marcas e modelos através da API da FIPE
 
----
+🗂️ Estrutura do Projeto
+plaintext
+Copiar
+Editar
+.
+├── main.py             # Ponto de entrada principal do programa
+├── gui.py              # Interface gráfica do sistema (Tkinter)
+├── database.py         # Operações e manipulação do banco de dados SQLite
+├── utils.py            # Funções auxiliares (validação, formatação, etc.)
+├── fipe_api.py         # Integração com a API pública da Tabela FIPE
+├── loja_carros.db      # Banco de dados SQLite (gerado automaticamente)
+├── Background_image.png# Imagem de fundo da tela de login
+└── README.md           # Documentação do projeto
+🔧 Tecnologias Utilizadas
+🐍 Python 3.x
 
-## 🎯 Funcionalidades
+🖼️ Tkinter (Interface gráfica)
 
-| Função             | Descrição |
-|:-------------------|:----------|
-| ➕ **Adicionar**        | Cadastra um novo veículo preenchendo Marca, Modelo, Ano e Preço. |
-| ✏️ **Editar**           | Permite alterar os dados de um veículo já cadastrado. (É necessário selecioná-lo na lista.) |
-| 🗑️ **Remover**          | Exclui o veículo selecionado da lista. |
-| 🧹 **Limpar Campo**     | Apaga os dados dos campos de texto para novos cadastros. |
-| 🔍 **Pesquisar**     | Faz a procura de algum carro especifico dentro do banco de dados da loja. |
-| 💲 **Vender**     | Abre o sistema para oferar a venda do veiculo. |
-| 📋 **Lista de Veículos**| Exibe todos os veículos cadastrados com ID, Marca, Modelo, Ano e Preço. |
+🗄️ SQLite (Banco de dados local)
 
----
+🌐 API Tabela FIPE (Consulta de marcas e modelos)
 
-## 🧩 Campos de Cadastro
+🎨 Pillow (PIL) (Manipulação de imagem no Tkinter)
 
-- **Marca**: Nome da fabricante do veículo.
-- **Modelo**: Modelo do veículo.
-- **Ano**: Ano de fabricação do veículo (somente números).
-- **Preço**: Valor do veículo.
-
-> ⚠️ **Atenção:**  
-> No campo **Preço**, use o **ponto ( . )** como separador decimal.  
-> Exemplo correto: `32500.50`  
-> Exemplo incorreto: `32500,50`
-
----
-
-## 🖥️ Como Usar
-
-1. Preencha os campos `Marca`, `Modelo`, `Ano` e `Preço`.
-2. Clique em **Adicionar** para registrar o veículo.
-4. Para **editar**, selecione o veículo na lista, altere os campos e clique em **Editar**.
-5. Para **remover**, selecione o veículo e clique em **Remover**.
-6. Para **limpar os campos**, clique em **Limpar Campo**.
-7. Para **pesquisar**, clique em **Pesquisar** e digite as informações do carro que esteja procurando.
-8. Para **vender**, clique em **Vender**.
-
----
-
-## 👤 Autores
-
-- Renato de Souza Rodrigues Junior - 324116285  
-- Lucas Prado da Silva - 942421704  
-- Luiz Eduardo Xavier de Almeida - 324117254  
-- Eduardo de Souza Campos - 825148524
-- Danillo Rodrigues de Moraes Almeida - 12525194853
-- Matheus Luz de Assumpção - 825122239
-
-- **Disciplina:** A3 - Gestão e Qualidade de Software
-- **Instituição:** [Anima]
-
----
-
-## 📄 Licença
-
-Este projeto é apenas para fins acadêmicos.  
-Todos os direitos reservados ©️.
-
----
-
-# 🛎️ Observações Finais
-
-- Código organizado e estruturado com foco em qualidade e usabilidade.
-- Simples, direto e eficiente para operações básicas de CRUD.
+🚀 Funcionalidades
+Funcionalidade	Descrição
+🔑 Login/Registro	Acesso restrito por perfil (Vendedor/Admin) com chave de acesso no registro.
+🚗 Cadastro de Carros	Adicionar veículos com informações de marca, modelo, ano e preço.
+🔍 Pesquisa	Busca de veículos por marca, modelo, ano ou preço.
+✏️ Edição	Permite editar informações dos veículos.
+🗑️ Remoção	Remove carros do estoque.
+💰 Venda	Simula venda, gera opções de parcelamento e registra no histórico.
+📜 Histórico de Vendas	Armazena vendas feitas e quem foi o vendedor.
+🌐 Sugestões dinâmicas	Autocomplete de marcas e modelos via API FIPE.
