@@ -94,8 +94,8 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 - **Tabelas:**
 - Criação automática (loja_carros.db)
 - carros
--usuarios
--keys_acesso
--historico (vendas)
+- usuarios
+- keys_acesso
+- historico (vendas)
 
 ```plaintext
