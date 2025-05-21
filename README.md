@@ -70,25 +70,25 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 - Editar
 - git clone https://github.com/seu-usuario/loja-de-carros.git
 - cd loja-de-carros
-- 
+ 
 2️⃣ **Instale as dependências**
-bash
-Copiar
-Editar
-pip install pillow
-pip install requests
+- bash
+- Copiar
+- Editar
+- pip install pillow
+- pip install requests
 
 3️⃣ **Execute o sistema**
-bash
-Copiar
-Editar
-python main.py
-Ao executar, o banco de dados loja_carros.db será criado automaticamente.
+- bash
+- opiar
+- Editar
+- python main.py
+- Ao executar, o banco de dados loja_carros.db será criado automaticamente.
 
 ##🔑 **Chaves de Acesso (para registro)**
 ##🔑 **Chave	🔐 Nível de Acesso**
-123	VENDEDOR
-456	ADMINISTRADOR
+- 123	VENDEDOR
+- 456	ADMINISTRADOR
 
 ### 🏦 **Banco de Dados**
 Criação automática (loja_carros.db)
