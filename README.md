@@ -50,3 +50,55 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 ├── loja_carros.db        # Banco SQLite (gerado automaticamente)
 ├── Background_image.png  # Imagem de fundo da tela de login
 └── README.md             # Documentação do projeto
+
+🔧 Tecnologias Utilizadas
+🐍 Python 3.10+
+
+🎨 Tkinter — Interface gráfica
+
+🗄️ SQLite — Banco de dados local
+
+🌐 API FIPE — Dados de marcas e modelos de veículos
+
+🖼️ Pillow (PIL) — Manipulação de imagem no Tkinter
+
+🔗 Requests — Consumo de APIs
+
+🚀 Como Executar Localmente
+1️⃣ Clone o repositório
+bash
+Copiar
+Editar
+git clone https://github.com/seu-usuario/loja-de-carros.git
+cd loja-de-carros
+2️⃣ Instale as dependências
+bash
+Copiar
+Editar
+pip install pillow
+pip install requests
+3️⃣ Execute o sistema
+bash
+Copiar
+Editar
+python main.py
+Ao executar, o banco de dados loja_carros.db será criado automaticamente.
+
+🔑 Chaves de Acesso (para registro)
+🔑 Chave	🔐 Nível de Acesso
+123	VENDEDOR
+456	ADMINISTRADOR
+
+🏦 Banco de Dados
+Criação automática (loja_carros.db)
+
+Tabelas:
+
+carros
+
+usuarios
+
+keys_acesso
+
+historico (vendas)
+
