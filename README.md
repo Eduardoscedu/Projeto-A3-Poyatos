@@ -87,8 +87,8 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 
 ## 🔑 **Chaves de Acesso (para registro)**
 ## 🔑 **Chave	🔐 Nível de Acesso**
-- 123	VENDEDOR
-- 456	ADMINISTRADOR
+- 123	                VENDEDOR
+- 456	             ADMINISTRADOR
 
 ## 🏦 **Banco de Dados**
 Criação automática (loja_carros.db)
