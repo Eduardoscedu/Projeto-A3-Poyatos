@@ -64,21 +64,21 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 
 ## 🚀 **Como Executar Localmente** 
 
-1️⃣ **Clone o repositório**
+## 1️⃣ **Clone o repositório**
 - bash
 - Copiar
 - Editar
 - git clone https://github.com/seu-usuario/loja-de-carros.git
 - cd loja-de-carros
  
-2️⃣ **Instale as dependências**
+## 2️⃣ **Instale as dependências**
 - bash
 - Copiar
 - Editar
 - pip install pillow
 - pip install requests
 
-3️⃣ **Execute o sistema**
+## 3️⃣ **Execute o sistema**
 - bash
 - opiar
 - Editar
@@ -90,7 +90,7 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 - 123	VENDEDOR
 - 456	ADMINISTRADOR
 
-### 🏦 **Banco de Dados**
+## 🏦 **Banco de Dados**
 Criação automática (loja_carros.db)
 
 **Tabelas:**
