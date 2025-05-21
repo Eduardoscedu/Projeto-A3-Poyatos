@@ -85,8 +85,8 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 - python main.py
 - Ao executar, o banco de dados loja_carros.db será criado automaticamente.
 
-##🔑 **Chaves de Acesso (para registro)**
-##🔑 **Chave	🔐 Nível de Acesso**
+## 🔑 **Chaves de Acesso (para registro)**
+## 🔑 **Chave	🔐 Nível de Acesso**
 - 123	VENDEDOR
 - 456	ADMINISTRADOR
 
