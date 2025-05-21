@@ -91,7 +91,7 @@ Permite o gerenciamento completo de estoque de carros, controle de vendas, pesqu
 - 456  -----------  ADMINISTRADOR
 
 ## 🏦 **Banco de Dados**
-**Tabelas:**
+- **Tabelas:**
 - Criação automática (loja_carros.db)
 - carros
 -usuarios
