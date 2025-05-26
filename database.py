@@ -1,21 +1,17 @@
-# database.py
-# Responsável pelas operações no banco de dados (SQLite)
-
 import sqlite3
-from utils import vender_carro
 
+
+DB_PATH = 'loja_carros.db'
 
 
 def conectar_banco():
-    """Cria uma conexão com o banco de dados SQLite."""
-    return sqlite3.connect('loja_carros.db')
+    return sqlite3.connect(DB_PATH)
+
 
 def criar_tabelas():
-    """Cria as tabelas no banco de dados, se ainda não existirem."""
     conn = conectar_banco()
     cursor = conn.cursor()
 
-    # Criação da tabela de carros
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS carros (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,17 +23,15 @@ def criar_tabelas():
         )
     ''')
 
-    # Criação da tabela de usuários
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL UNIQUE,
-            senha TEXT NOT NULL,
+            hash_senha TEXT NOT NULL,
             nivel_acesso TEXT NOT NULL
         )
     ''')
 
-    # Criação da tabela de chaves de acesso
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS keys_acesso (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +40,6 @@ def criar_tabelas():
         )
     ''')
 
-    # Criação da tabela de Historico de vendas
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS historico (
             marca TEXT NOT NULL,
@@ -59,7 +52,6 @@ def criar_tabelas():
         )
     ''')
 
-    # Inserção de chaves padrão (se ainda não existirem)
     keys_validas = [('123', 'VENDEDOR'), ('456', 'ADMINISTRADOR')]
     for key, nivel in keys_validas:
         cursor.execute("SELECT * FROM keys_acesso WHERE key = ?", (key,))
@@ -69,13 +61,15 @@ def criar_tabelas():
     conn.commit()
     conn.close()
 
-# Operações para carros
+
 def adicionar_carro(marca, modelo, ano, preco, vin):
     conn = conectar_banco()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO carros (marca, modelo, ano, preco, chassi) VALUES (?, ?, ?, ?, ?)", (marca, modelo, ano, preco, vin))
+    cursor.execute("INSERT INTO carros (marca, modelo, ano, preco, chassi) VALUES (?, ?, ?, ?, ?)",
+                   (marca, modelo, ano, preco, vin))
     conn.commit()
     conn.close()
+
 
 def listar_carros():
     conn = conectar_banco()
@@ -93,7 +87,6 @@ def remover_carro(carro_id):
     conn.commit()
     conn.close()
 
-    
 
 def editar_carro(carro_id, marca, modelo, ano, preco):
     conn = conectar_banco()
@@ -105,10 +98,11 @@ def editar_carro(carro_id, marca, modelo, ano, preco):
     conn.commit()
     conn.close()
 
+
 def pesquisar_carro(marca="", modelo="", ano=None, preco=None):
     conn = conectar_banco()
     cursor = conn.cursor()
-    
+
     query = "SELECT * FROM carros WHERE 1=1"
     params = []
 
@@ -131,16 +125,16 @@ def pesquisar_carro(marca="", modelo="", ano=None, preco=None):
     return carros
 
 
-# Operações para login/registro
-def autenticar_usuario(nome, senha):
+def autenticar_usuario(nome):
     conn = conectar_banco()
     cursor = conn.cursor()
-    cursor.execute("SELECT nivel_acesso FROM usuarios WHERE nome = ? AND senha = ?", (nome, senha))
+    cursor.execute("SELECT nivel_acesso FROM usuarios WHERE nome = ?", (nome,))
     resultado = cursor.fetchone()
     conn.close()
     return resultado
 
-def registrar_usuario(nome, senha, key):
+
+def registrar_usuario(nome, hash_senha, key):
     conn = conectar_banco()
     cursor = conn.cursor()
     cursor.execute("SELECT nivel_acesso FROM keys_acesso WHERE key = ?", (key,))
@@ -148,31 +142,47 @@ def registrar_usuario(nome, senha, key):
     if resultado:
         nivel = resultado[0]
         try:
-            cursor.execute("INSERT INTO usuarios (nome, senha, nivel_acesso) VALUES (?, ?, ?)", (nome, senha, nivel))
+            cursor.execute("INSERT INTO usuarios (nome, hash_senha, nivel_acesso) VALUES (?, ?, ?)",
+                           (nome, hash_senha, nivel))
             conn.commit()
             return True, f"Registrado com acesso: {nivel}"
         except sqlite3.IntegrityError:
             return False, "Nome de usuário já existe."
     else:
         return False, "Key inválida."
+    conn.close()
+
 
 def buscar_carro_por_id(carro_id):
-    conn = sqlite3.connect("loja_carros.db")
+    conn = conectar_banco()
     cursor = conn.cursor()
     cursor.execute("SELECT id, marca, modelo, ano, preco, chassi FROM carros WHERE id = ?", (carro_id,))
     carro = cursor.fetchone()
     conn.close()
-    return vender_carro(carro)
+    return carro
 
 
 def registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi):
-    conn = sqlite3.connect("loja_carros.db")
+    conn = conectar_banco()
     cursor = conn.cursor()
-    #Pega o ID do vendedor que efetuou a venda
-    cursor.execute("SELECT id FROM usuarios where nome = ?", (nome_vendedor,))
+    cursor.execute("SELECT id FROM usuarios WHERE nome = ?", (nome_vendedor,))
     id_vendedor = cursor.fetchone()
     if id_vendedor:
         id_vendedor = id_vendedor[0]
-    cursor.execute("INSERT INTO historico (marca, modelo, ano, preco, chassi, id_vendedor) VALUES (?, ?, ?, ?, ?, ?)", (marca, modelo, ano, preco, chassi, id_vendedor))
+        cursor.execute(
+            "INSERT INTO historico (marca, modelo, ano, preco, chassi, id_vendedor) VALUES (?, ?, ?, ?, ?, ?)",
+            (marca, modelo, ano, preco, chassi, id_vendedor)
+        )
     conn.commit()
     conn.close()
+
+
+def buscar_hash_senha(nome):
+    conn = conectar_banco()
+    cursor = conn.cursor()
+    cursor.execute("SELECT hash_senha FROM usuarios WHERE nome = ?", (nome,))
+    resultado = cursor.fetchone()
+    conn.close()
+    if resultado:
+        return resultado[0]
+    return None
