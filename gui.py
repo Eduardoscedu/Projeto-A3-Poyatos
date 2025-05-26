@@ -4,15 +4,19 @@
 import tkinter as tk
 import random
 import string
+
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
+import bcrypt
 from database import criar_tabelas, adicionar_carro, registrar_venda, listar_carros, remover_carro, editar_carro
-from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id
+from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id, buscar_hash_senha
 from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
-from fipe_api import listar_marcas
+from fipe_api import listar_marcas, listar_modelos
 
 nome_vendedor = None
 marcas_carros = listar_marcas()
+marcas_dict = {m['nome']: m['codigo'] for m in marcas_carros}
+
 
 def iniciar_gui():
     """Inicia toda a aplicação gráfica."""
@@ -49,65 +53,104 @@ def iniciar_gui():
     # Tela de login
     def tela_login():
         limpar_tela()
-        frame = tk.Frame(root)
-        frame.pack(expand=True)
         root.title("Login - Loja de Carros")
         root.geometry("400x400")
 
+        
+        # Carrega imagem de fundo
         imagem_fundo = Image.open("Background_image.png")
-        imagem_fundo = imagem_fundo.resize((400, 400))  # Redimensiona para o tamanho da janela
+        imagem_fundo = imagem_fundo.resize((400, 400))
         imagem_fundo_tk = ImageTk.PhotoImage(imagem_fundo)
 
         label_fundo = tk.Label(root, image=imagem_fundo_tk)
         label_fundo.image = imagem_fundo_tk
         label_fundo.place(x=0, y=0, relwidth=1, relheight=1)
-        label_fundo.lower()  # Envia a imagem para trás
+
+        # Label de título
+        tk.Label(root, text="Login", font=("Arial", 16), fg="black", bg=root["bg"]).pack(pady=(30, 10))
+
+        # Função para criar campos de entrada com placeholder
+        def criar_entry_placeholder(placeholder, show=None):
+            entry = tk.Entry(root, font=("Arial", 12), fg="grey", bg="white", relief="flat", justify="center", width=18)
+            entry.insert(0, placeholder)
+
+            def on_focus_in(event):
+                if entry.get() == placeholder:
+                    entry.delete(0, tk.END)
+                    entry.config(fg="black")
+                    if show:
+                        entry.config(show=show)
+
+            def on_focus_out(event):
+                if entry.get() == "":
+                    entry.insert(0, placeholder)
+                    entry.config(fg="grey")
+                    if show:
+                        entry.config(show="")
+
+            entry.bind("<FocusIn>", on_focus_in)
+            entry.bind("<FocusOut>", on_focus_out)
+            entry.pack(pady=5)
+            return entry
 
 
-        tk.Label(frame, text="Login", font=("Arial", 16)).pack(pady=10)
-        usuario_entry = criar_entry_placeholder(frame, "Usuário")
-        senha_entry = criar_entry_placeholder(frame, "Senha", show="*")
+        # Campos de usuário e senha
+        usuario_entry = criar_entry_placeholder("Usuário")
+        senha_entry = criar_entry_placeholder("Senha", show="*")
 
+        # Ação ao clicar em Login
         def tentar_login():
             nome = usuario_entry.get()
-            senha = senha_entry.get()
-            if nome == "Usuário" or senha == "Senha":
+            senha_digitada = senha_entry.get()
+
+            if nome == "Usuário" or senha_digitada == "Senha":
                 messagebox.showerror("Erro", "Preencha todos os campos.")
                 return
-            resultado = autenticar_usuario(nome, senha)
-            if resultado:
-                global nome_vendedor
-                nome_vendedor = nome
-                tela_loja(nome, resultado[0])
+
+            # Buscar o hash da senha no banco
+            hash_salvo = buscar_hash_senha(nome)
+
+            if hash_salvo:
+                senha_ok = bcrypt.checkpw(senha_digitada.encode('utf-8'), hash_salvo)
+                if senha_ok:
+                    global nome_vendedor
+                    # Pega também o nível de acesso (mantendo o que já tinha)
+                    resultado = autenticar_usuario(nome)  # Só retorna o nível, não precisa da senha
+                    if resultado:
+                        nome_vendedor = nome
+                        tela_loja(nome, resultado[0])
+                else:
+                    # Senha incorreta
+                    senha_entry.delete(0, tk.END)
+                    senha_entry.insert(0, "Senha incorreta")
+                    senha_entry.config(fg="red", show="")
             else:
-                #Usuario incorreto
+                # Usuário não encontrado
                 usuario_entry.delete(0, tk.END)
                 usuario_entry.insert(0, "Usuario incorreto")
                 usuario_entry.config(fg="red", show="")
 
-                #Senha incorreto
-                senha_entry.delete(0, tk.END)
-                senha_entry.insert(0, "Senha incorreta")
-                senha_entry.config(fg="red", show="")
-
-                #Limpar para redigitação
                 def limpar_hint_usuario(event):
                     if usuario_entry.get() == "Usuario incorreto":
                         usuario_entry.delete(0, tk.END)
                         usuario_entry.config(fg="black", show="")
 
-                usuario_entry.bind("<FocusIn>", limpar_hint_usuario)
-                
-                #Limpar para redigitação
                 def limpar_hint_senha(event):
                     if senha_entry.get() == "Senha incorreta":
                         senha_entry.delete(0, tk.END)
                         senha_entry.config(fg="black", show="*")
 
+                usuario_entry.bind("<FocusIn>", limpar_hint_usuario)
                 senha_entry.bind("<FocusIn>", limpar_hint_senha)
 
-        tk.Button(frame, text="Login", command=tentar_login).pack(pady=10)
-        tk.Button(frame, text="Registrar", command=tela_registro).pack()
+        # Botões estilizados diretamente no root
+        estilo_botao = {"bg": "white", "fg": "black", "relief": "flat", "font": ("Arial", 11, "bold"), "bd": 0}
+
+        
+
+        tk.Button(root, text="Login",  command=tentar_login, **estilo_botao).pack(pady=(10, 5), ipadx=10)
+        tk.Button(root, text="Registrar", command=tela_registro, **estilo_botao).pack(ipadx=10)
+
 
     # Tela de registro
     def tela_registro():
@@ -132,7 +175,12 @@ def iniciar_gui():
             if senha != repetição_senha:
                 messagebox.showerror("Erro", "Senhas diferentes!!.")
                 return
-            sucesso, mensagem = registrar_usuario(nome, senha, key)
+            #Implementação do HASH
+            senha_bytes = senha.encode('utf-8')
+            salto = bcrypt.gensalt()
+            hash_senha = bcrypt.hashpw(senha_bytes, salto)
+
+            sucesso, mensagem = registrar_usuario(nome, hash_senha, key)
             if sucesso:
                 messagebox.showinfo("Sucesso", mensagem)
                 tela_login()
@@ -164,9 +212,44 @@ def iniciar_gui():
                 listbox_sugestoes = tk.Listbox(frame_inputs, height=5, width=15)
                 listbox_sugestoes.grid(row=2, column=i, padx=5, pady=(5, 0))  # espaço superior de 05 pixels
 
+            elif label == "Modelo":
+                entry_modelo = tk.Entry(frame_inputs)
+                entry_modelo.grid(row=1, column=i, padx=5)
+                entries.append(entry_modelo)
+
+                listbox_modelos = tk.Listbox(frame_inputs, height=5, width=18, font=("Arial", 9))
+                listbox_modelos.grid(row=2, column=i, padx=5, pady=(5, 0))
+                listbox_modelos.grid_remove()
+
+                modelos_carregados = []  # manter fora das funções internas
+
+                def atualizar_sugestoes_modelo(event):
+                    texto_modelo = entry_modelo.get().lower()
+                    listbox_modelos.delete(0, tk.END)
+                    if texto_modelo:
+                        sugeridas = [m for m in modelos_carregados if texto_modelo in m.lower()]
+                        if sugeridas:
+                            for modelo in sugeridas:
+                                listbox_modelos.insert(tk.END, modelo)
+                            listbox_modelos.grid()
+                        else:
+                            listbox_modelos.grid_remove()
+                    else:
+                        listbox_modelos.grid_remove()
+
+                def selecionar_modelo(event):
+                    selecionado = listbox_modelos.get(tk.ANCHOR)
+                    entry_modelo.delete(0, tk.END)
+                    entry_modelo.insert(0, selecionado)
+                    listbox_modelos.grid_remove()
+
+                entry_modelo.bind("<KeyRelease>", atualizar_sugestoes_modelo)
+                listbox_modelos.bind("<<ListboxSelect>>", selecionar_modelo)
+
+
                 listbox_sugestoes.grid_remove()  # Esconde inicialmente
 
-                def atualizar_sugestoes(event):
+                def atualizar_sugestoes_marca(event):
                     texto_marca = entry_marca.get().lower()
                     listbox_sugestoes.delete(0, tk.END)
                     if texto_marca:
@@ -178,7 +261,7 @@ def iniciar_gui():
                         if sugeridas:
                             for marca in sugeridas:
                                 listbox_sugestoes.insert(tk.END, marca)
-                            listbox_sugestoes.grid()  # Mostrar sugestões
+                            listbox_sugestoes.grid()  # Mostrar sugestões                            
                         else:
                             listbox_sugestoes.grid_remove()
                     else:
@@ -188,9 +271,15 @@ def iniciar_gui():
                     selecionado = listbox_sugestoes.get(tk.ANCHOR)
                     entry_marca.delete(0, tk.END)
                     entry_marca.insert(0, selecionado)
+                    # Atualizar modelos com base na marca selecionada
+                    marca_codigo = marcas_dict.get(selecionado)
+                    if marca_codigo:
+                        modelos = listar_modelos(marca_codigo)
+                        modelos_carregados.clear()
+                        modelos_carregados.extend([m['nome'] for m in modelos])
                     listbox_sugestoes.grid_remove()
 
-                entry_marca.bind("<KeyRelease>", atualizar_sugestoes)
+                entry_marca.bind("<KeyRelease>", atualizar_sugestoes_marca)
                 listbox_sugestoes.bind("<<ListboxSelect>>", selecionar_sugestao)
 
             else:
@@ -303,7 +392,7 @@ def iniciar_gui():
             if carro:
                 carro_formatado = list(carro)
                 preco_total = carro_formatado[4]
-                chassi = carro_formatado[5] 
+                chassi = carro_formatado[5]
                 preco_formatado = formatar_preco(preco_total)
 
                 valores = [
@@ -318,38 +407,35 @@ def iniciar_gui():
 
                 car.insert("", tk.END, iid=carro[0], values=valores)
 
-                if preco <= 70000:
+                # Listbox com opções de pagamento
+                lista_parcelas = tk.Listbox(janela_vender, height=15, font=("Arial", 10))
 
-                    # Listbox com opções de parcelamento
-                    lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
-                    
-                    juros = 0.025  # 0,025% ao mês
-                    for i in range(2, 13):
-                        valor_total_com_juros = preco_total * ((1 + juros) ** i)
-                        valor_parcela = valor_total_com_juros / i
-                        lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
-                    lista_parcelas.pack(pady=10)
-                elif preco > 70000:
-                    lista_parcelas = tk.Listbox(janela_vender, height=11, font=("Arial", 10))
-                    
-                    juros = 0.025  # 0,025% ao mês
-                    for i in range(2, 25):
-                        valor_total_com_juros = preco_total * ((1 + juros) ** i)
-                        valor_parcela = valor_total_com_juros / i
-                        lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
-                    lista_parcelas.pack(pady=10)
+                # ✅ Opção à vista
+                lista_parcelas.insert(tk.END, f"À vista - {formatar_preco(preco_total)}")
 
-                # Função chamada quando uma opção da Listbox é selecionada
+                # Definindo parcelas com juros
+                juros = 0.025  # 2,5% ao mês
+
+                max_parcelas = 12 if preco <= 70000 else 24
+
+                for i in range(2, max_parcelas + 1):
+                    valor_total_com_juros = preco_total * ((1 + juros) ** i)
+                    valor_parcela = valor_total_com_juros / i
+                    lista_parcelas.insert(tk.END, f"{i}x de {formatar_preco(valor_parcela)}")
+
+                lista_parcelas.pack(pady=10)
+
+                # ✅ Função chamada quando uma opção da Listbox é selecionada
                 def ao_selecionar_parcela(event):
                     selecao = lista_parcelas.curselection()
                     if selecao:
                         parcela_escolhida = lista_parcelas.get(selecao[0])
 
-                        # Pegamos os dados diretamente da Treeview
+                        # Dados do carro
                         dados_carro = car.item(car.get_children()[0], "values")
                         marca, modelo, ano, preco = dados_carro
 
-                        # Monta a mensagem com todas as informações
+                        # Mensagem de confirmação
                         mensagem = (
                             f"🚗 Confirma a venda do carro: 🚗\n\n"
                             f"Marca: {marca}\n"
@@ -365,19 +451,13 @@ def iniciar_gui():
                             remover_carro(carro_id)
                             atualizar_lista()
 
-                            #Inserção do Historico
+                            # Inserção no histórico
                             global nome_vendedor
                             registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi)
                             janela_vender.destroy()
+
                 lista_parcelas.bind("<<ListboxSelect>>", ao_selecionar_parcela)
-            
 
-            
-
-
-
-
-            
         def on_search():
             valores = [entry.get() for entry in entries]
             marca, modelo, ano, preco = valores
