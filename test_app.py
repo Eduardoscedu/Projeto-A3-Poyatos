@@ -6,7 +6,6 @@ import utils
 import database
 import fipe_api
 
-
 class TestUtils(unittest.TestCase):
     def test_validar_campos_validos(self):
         self.assertTrue(utils.validar_campos("Ford", "Ka", "2020", "25000"))
@@ -26,6 +25,16 @@ class TestUtils(unittest.TestCase):
     def test_formatar_preco_invalido(self):
         self.assertEqual(utils.formatar_preco("abc"), "abc")
 
+    def test_capitalizar_texto(self):
+        self.assertEqual(utils.capitalizar_texto("joão da silva"), "João Da Silva")
+
+    def test_validar_cpf_valido(self):
+        self.assertTrue(utils.validar_cpf("12345678901"))
+
+    def test_validar_cpf_invalido(self):
+        self.assertFalse(utils.validar_cpf("123"))
+
+
 class TestDatabase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -34,13 +43,14 @@ class TestDatabase(unittest.TestCase):
         database.criar_tabelas()
 
     def setUp(self):
-        conn = database.conectar_banco()
+        conn = sqlite3.connect(self.db_name, timeout=5)  # tenta esperar 5s se estiver travado
         cursor = conn.cursor()
         cursor.execute("DELETE FROM carros")
         cursor.execute("DELETE FROM usuarios")
         cursor.execute("DELETE FROM historico")
         conn.commit()
         conn.close()
+
 
     def test_adicionar_e_listar_carro(self):
         database.adicionar_carro("Ford", "Ka", 2020, 25000, "ABC123456")
@@ -75,13 +85,44 @@ class TestDatabase(unittest.TestCase):
         self.assertIsNotNone(carro)
         self.assertEqual(carro[1], "Ford")
 
+    def test_inserir_e_validar_comprador(self):
+        database.inserir_comprador("João Silva", "01/01/1990", "12345678901", "Rua A", "Apto 1", "Cliente")
+        self.assertTrue(database.validar_comprador("12345678901"))
+        dados = database.validar_dados_comprador("12345678901")
+        self.assertEqual(dados[1], "João Silva")
+
+    def test_registrar_venda(self):
+        # Inserir vendedor e comprador
+        conn = database.conectar_banco()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO usuarios (nome, hash_senha, nivel_acesso) VALUES (?, ?, ?)", ("vendedor", "hash", "VENDEDOR"))
+        id_vendedor = cursor.lastrowid
+        cursor.execute("INSERT INTO compradores (nome, data_nasc, cpf, endereco, complemento, cargo) VALUES (?, ?, ?, ?, ?, ?)",
+                    ("João Silva", "01/01/2000", "12345678900", "Rua A", "", "Cliente"))
+        id_comprador = cursor.lastrowid
+        conn.commit()
+        conn.close()
+
+        # Registrar venda
+        database.registrar_venda("Ford", "Ka", 2020, 25000, id_vendedor, "ABC123456", id_comprador)
+        conn = database.conectar_banco()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM historico")
+        vendas = cursor.fetchall()
+        conn.close()
+
+
+
     @classmethod
     def tearDownClass(cls):
         try:
+            import gc
+            gc.collect()  # força coleta de conexões
             if os.path.exists(cls.db_name):
                 os.remove(cls.db_name)
         except Exception as e:
             print(f"Erro ao remover o banco de dados: {e}")
+
 
 
 class TestFipeAPI(unittest.TestCase):
