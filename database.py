@@ -19,7 +19,7 @@ def criar_tabelas():
             modelo TEXT NOT NULL,
             ano INTEGER NOT NULL,
             preco REAL NOT NULL,
-            chassi TEXT
+            chassi TEXT UNIQUE NOT NULL
         )
     ''')
 
@@ -48,7 +48,20 @@ def criar_tabelas():
             preco REAL NOT NULL,
             chassi TEXT,
             id_vendedor INTEGER,
-            FOREIGN KEY (id_vendedor) REFERENCES usuarios(id)
+            id_comprador INTEGER,
+            FOREIGN KEY (id_vendedor) REFERENCES usuarios(id),
+            FOREIGN KEY (id_comprador) REFERENCES compradores(id)
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS compradores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            data_nasc TEXT NOT NULL, 
+            cpf INTEGER NOT NULL UNIQUE,
+            endereco TEXT NOT NULL,
+            complemento TEXT,
+            cargo TEXT NOT NULL
         )
     ''')
 
@@ -162,17 +175,17 @@ def buscar_carro_por_id(carro_id):
     return carro
 
 
-def registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi):
+def registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi, id_comprador):
     conn = conectar_banco()
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM usuarios WHERE nome = ?", (nome_vendedor,))
     id_vendedor = cursor.fetchone()
     if id_vendedor:
         id_vendedor = id_vendedor[0]
-        cursor.execute(
-            "INSERT INTO historico (marca, modelo, ano, preco, chassi, id_vendedor) VALUES (?, ?, ?, ?, ?, ?)",
-            (marca, modelo, ano, preco, chassi, id_vendedor)
-        )
+        cursor.execute("""
+        INSERT INTO historico (marca, modelo, ano, preco, id_vendedor, chassi, id_comprador)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (marca, modelo, ano, preco, id_vendedor, chassi, id_comprador))
     conn.commit()
     conn.close()
 
@@ -186,3 +199,41 @@ def buscar_hash_senha(nome):
     if resultado:
         return resultado[0]
     return None
+
+
+def validar_comprador(cpf):
+    conn = conectar_banco()
+    cursor = conn.cursor()
+    cursor.execute("SELECT cpf FROM compradores WHERE cpf = ?", (cpf,))
+    resultado = cursor.fetchone()
+    conn.close()
+    if resultado:
+        return True 
+    else:
+        return False
+    
+def validar_dados_comprador(cpf):
+    conn = conectar_banco()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nome, cpf FROM compradores WHERE cpf = ?", (cpf,))
+    resultado = cursor.fetchone()
+    conn.close()
+    if resultado:
+        return resultado  # (id, nome, cpf)
+    return None
+
+
+def inserir_comprador(nome, datanasc, cpf, endereco, complemento, cargo):
+    try:
+        conn = conectar_banco()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO compradores (nome, data_nasc, cpf, endereco, complemento, cargo)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (nome, datanasc, cpf, endereco, complemento, cargo))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Erro ao inserir comprador: {e}")
+        return False
