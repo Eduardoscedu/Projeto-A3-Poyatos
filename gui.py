@@ -8,9 +8,10 @@ import string
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import bcrypt
-from database import criar_tabelas, adicionar_carro, registrar_venda, listar_carros, remover_carro, editar_carro
+import utils
+from database import criar_tabelas, adicionar_carro, inserir_comprador, registrar_venda, listar_carros, remover_carro, editar_carro, validar_comprador, validar_dados_comprador
 from database import autenticar_usuario, registrar_usuario, pesquisar_carro, buscar_carro_por_id, buscar_hash_senha
-from utils import limpar_campos, preencher_campos, validar_campos, formatar_preco
+from utils import formatar_data_nascimento, limpar_campos, preencher_campos, validar_campos, formatar_preco, validar_cpf, capitalizar_texto
 from fipe_api import listar_marcas, listar_modelos
 
 nome_vendedor = None
@@ -114,34 +115,36 @@ def iniciar_gui():
                 senha_ok = bcrypt.checkpw(senha_digitada.encode('utf-8'), hash_salvo)
                 if senha_ok:
                     global nome_vendedor
-                    # Pega também o nível de acesso (mantendo o que já tinha)
-                    resultado = autenticar_usuario(nome)  # Só retorna o nível, não precisa da senha
+                    resultado = autenticar_usuario(nome)
                     if resultado:
                         nome_vendedor = nome
                         tela_loja(nome, resultado[0])
                 else:
-                    # Senha incorreta
                     senha_entry.delete(0, tk.END)
                     senha_entry.insert(0, "Senha incorreta")
                     senha_entry.config(fg="red", show="")
+
+                    def limpar_hint_senha(event):
+                        if senha_entry.get() == "Senha incorreta":
+                            senha_entry.delete(0, tk.END)
+                            senha_entry.config(fg="black", show="*")
+
+                    senha_entry.bind("<FocusIn>", limpar_hint_senha)
+                    senha_entry.bind("<Button-1>", limpar_hint_senha)
+                    senha_entry.bind("<Key>", limpar_hint_senha)
             else:
-                # Usuário não encontrado
                 usuario_entry.delete(0, tk.END)
                 usuario_entry.insert(0, "Usuario incorreto")
-                usuario_entry.config(fg="red", show="")
+                usuario_entry.config(fg="red")
 
                 def limpar_hint_usuario(event):
                     if usuario_entry.get() == "Usuario incorreto":
                         usuario_entry.delete(0, tk.END)
-                        usuario_entry.config(fg="black", show="")
-
-                def limpar_hint_senha(event):
-                    if senha_entry.get() == "Senha incorreta":
-                        senha_entry.delete(0, tk.END)
-                        senha_entry.config(fg="black", show="*")
+                        usuario_entry.config(fg="black")
 
                 usuario_entry.bind("<FocusIn>", limpar_hint_usuario)
-                senha_entry.bind("<FocusIn>", limpar_hint_senha)
+                usuario_entry.bind("<Button-1>", limpar_hint_usuario)
+                usuario_entry.bind("<Key>", limpar_hint_usuario)
 
         # Botões estilizados diretamente no root
         estilo_botao = {"bg": "white", "fg": "black", "relief": "flat", "font": ("Arial", 11, "bold"), "bd": 0}
@@ -356,11 +359,213 @@ def iniciar_gui():
                 messagebox.showwarning("Aviso", "Selecione um carro para Vender.")
                 return
             carro_id = tree.item(selected, "values")[0]
-            tela_vender(carro_id)
+            #tela_vender(carro_id)
+            tela_Comprador(carro_id)
+
+        #Tela CPF do Comprador
+        def tela_Comprador(carro_id):
+            janela_cpf = tk.Toplevel()
+            janela_cpf.title("Validação Comprador!!")
+            janela_cpf.geometry("300x200")
+            janela_cpf.resizable(False, False)
+
+            # Frame centralizado
+            frame = tk.Frame(janela_cpf)
+            frame.place(relx=0.5, rely=0.5, anchor="center")
+
+            # Label
+            label = tk.Label(frame, text="Digite o CPF do Comprador:", font=("Arial", 10))
+            label.pack(pady=5)
+
+            # Campo de entrada (Entry)
+            entry_cpf = tk.Entry(frame, font=("Arial", 12), width=25, justify="center")
+            entry_cpf.pack(pady=5)
+
+            def formatar_cpf(event):
+                cpf = entry_cpf.get()
+                cpf = ''.join(filter(str.isdigit, cpf))  # Remove qualquer caractere que não seja número
+                cpf = cpf[:11]  # Limita a 11 dígitos
+
+                if len(cpf) == 11:
+                    cpf_formatado = f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}"
+                    
+                    # Atualiza o campo sem gerar loop no evento
+                    entry_cpf.unbind("<KeyRelease>")
+                    entry_cpf.delete(0, tk.END)
+                    entry_cpf.insert(0, cpf_formatado)
+                    entry_cpf.bind("<KeyRelease>", formatar_cpf)
+            entry_cpf.bind("<KeyRelease>", formatar_cpf)
+
+            # Chama a função de confirmar o CPF
+            def confirmar():
+                cpf = entry_cpf.get()
+
+                if not validar_cpf(cpf):
+                    # CPF inválido
+                    entry_cpf.delete(0, tk.END)
+                    entry_cpf.insert(0, "CPF incorreto")
+                    entry_cpf.config(fg="red")
+
+                    # Função para limpar o aviso quando o campo recebe foco ou é clicado
+                    def limpar_hint_cpf(event):
+                        if entry_cpf.get() == "CPF incorreto":
+                            entry_cpf.delete(0, tk.END)
+                            entry_cpf.config(fg="black")
+
+                    # Binds para ativar o limpar
+                    entry_cpf.bind("<FocusIn>", limpar_hint_cpf)
+                    entry_cpf.bind("<Button-1>", limpar_hint_cpf)
+                    entry_cpf.bind("<Key>", limpar_hint_cpf)
+
+                else:
+                    # CPF válido
+                    cpf_limpo = cpf.replace(".", "").replace("-", "").strip()
+                    if validar_comprador(cpf):
+                        dados_comprador = validar_dados_comprador(cpf)
+
+                        if dados_comprador:
+                            global id_comprador, nome_comprador, cpf_comprador
+                            id_comprador, nome_comprador, cpf_comprador = dados_comprador
+                            janela_cpf.destroy()
+                            tela_vender(carro_id, id_comprador, nome_comprador, cpf_comprador)
+                        else:
+                            messagebox.showerror("Erro", "Erro ao buscar dados do comprador.")
+                    else:
+                        resposta = messagebox.askyesno("CPF não encontrado", "CPF inexistente.\nDeseja cadastrar um novo comprador?")
+                        if resposta:
+                            cadastrar_comprador(cpf_limpo, carro_id)
+                            janela_cpf.destroy()
+                        else:
+                            messagebox.showinfo("Operação cancelada", "Cadastro não iniciado.")
+
+            # Botão Confirmar
+            btn_confirmar = tk.Button(frame, text="Confirmar", command=confirmar)
+            btn_confirmar.pack(pady=10)
+
+        def cadastrar_comprador(cpf_limpo, carro_id):
+            janela_cpf = tk.Toplevel()
+            janela_cpf.title("Comprador!!")
+            janela_cpf.geometry("400x400")
+            janela_cpf.resizable(False, False)
+
+            # Frame centralizado
+            frame = tk.Frame(janela_cpf)
+            frame.place(relx=0.5, rely=0.5, anchor="center")
+
+            # Labels e Entrys
+            tk.Label(frame, text="Nome Completo:", font=("Arial", 14, "bold")).grid(row=0, column=0, pady=5, sticky="e")
+            entry_nome = tk.Entry(frame, width=30)
+            entry_nome.grid(row=0, column=1, pady=5)
+            def ao_digitar_nome(event):
+                texto = entry_nome.get()
+                texto_capitalizado = capitalizar_texto(texto)
+                
+                # Impede o cursor de voltar pro final em cada letra
+                pos = entry_nome.index(tk.INSERT)
+                entry_nome.delete(0, tk.END)
+                entry_nome.insert(0, texto_capitalizado)
+                entry_nome.icursor(pos)
+
+            entry_nome.bind("<KeyRelease>", ao_digitar_nome)
+
+            tk.Label(frame, text="Data Nasc. (DD/MM/AAAA):", font=("Arial", 12, "bold")).grid(row=1, column=0, pady=5, sticky="e")
+            entry_datanasc = tk.Entry(frame, width=30)
+            entry_datanasc.grid(row=1, column=1, pady=5)
+            def ao_digitar_data(event):
+                texto = entry_datanasc.get()
+                apenas_digitos = ''.join(filter(str.isdigit, texto))
+
+                if len(apenas_digitos) == 8:
+                    formatado = formatar_data_nascimento(apenas_digitos)
+                    entry_datanasc.delete(0, tk.END)
+                    entry_datanasc.insert(0, formatado)
+
+            entry_datanasc.bind("<KeyRelease>", ao_digitar_data)
+
+            tk.Label(frame, text="CPF:", font=("Arial", 14, "bold")).grid(row=2, column=0, pady=5, sticky="e")
+            entry_cpf = tk.Entry(frame, width=30)
+            entry_cpf.grid(row=2, column=1, pady=5)
+
+            if len(cpf_limpo) == 11:
+                cpf_formatado = f"{cpf_limpo[:3]}.{cpf_limpo[3:6]}.{cpf_limpo[6:9]}-{cpf_limpo[9:]}"
+                entry_cpf.insert(0, cpf_formatado)  
+
+            tk.Label(frame, text="Endereço:", font=("Arial", 14, "bold")).grid(row=3, column=0, pady=5, sticky="e")
+            entry_endereco = tk.Entry(frame, width=30)
+            entry_endereco.grid(row=3, column=1, pady=5)
+            def ao_digitar_nome(event):
+                texto = entry_endereco.get()
+                texto_capitalizado = capitalizar_texto(texto)
+                
+                # Impede o cursor de voltar pro final em cada letra
+                pos = entry_endereco.index(tk.INSERT)
+                entry_endereco.delete(0, tk.END)
+                entry_endereco.insert(0, texto_capitalizado)
+                entry_endereco.icursor(pos)
+
+            entry_endereco.bind("<KeyRelease>", ao_digitar_nome)
+
+            tk.Label(frame, text="Complemento:", font=("Arial", 14, "bold")).grid(row=4, column=0, pady=5, sticky="e")
+            entry_complemento = tk.Entry(frame, width=18)
+            entry_complemento.grid(row=4, column=1, pady=5, sticky="w")
+            def ao_digitar_nome(event):
+                texto = entry_complemento.get()
+                texto_capitalizado = capitalizar_texto(texto)
+                
+                # Impede o cursor de voltar pro final em cada letra
+                pos = entry_complemento.index(tk.INSERT)
+                entry_complemento.delete(0, tk.END)
+                entry_complemento.insert(0, texto_capitalizado)
+                entry_complemento.icursor(pos)
+
+            entry_complemento.bind("<KeyRelease>", ao_digitar_nome)
+
+            tk.Label(frame, text="Cargo:", font=("Arial", 14, "bold")).grid(row=5, column=0, pady=5, sticky="e")
+            entry_cargo = tk.Entry(frame, width=30)
+            entry_cargo.grid(row=5, column=1, pady=5)
+            def ao_digitar_nome(event):
+                texto = entry_cargo.get()
+                texto_capitalizado = capitalizar_texto(texto)
+                
+                # Impede o cursor de voltar pro final em cada letra
+                pos = entry_cargo.index(tk.INSERT)
+                entry_cargo.delete(0, tk.END)
+                entry_cargo.insert(0, texto_capitalizado)
+                entry_cargo.icursor(pos)
+
+            entry_cargo.bind("<KeyRelease>", ao_digitar_nome)
+
+            # Função ao clicar em "Cadastrar"
+            def confirmar_cadastro():
+                nome = entry_nome.get()
+                datanasc = entry_datanasc.get()
+                cpf = entry_cpf.get()
+                endereco = entry_endereco.get()
+                complemento = entry_complemento.get()
+                cargo = entry_cargo.get()
+
+                sucesso = inserir_comprador(nome, datanasc, cpf, endereco, complemento, cargo)
+
+                if sucesso:
+                    cpf_limpo = cpf.replace(".", "").replace("-", "").strip()
+                    if validar_comprador(cpf):
+                        dados_comprador = validar_dados_comprador(cpf)
+                        if dados_comprador:
+                            global id_comprador, nome_comprador, cpf_comprador
+                            id_comprador, nome_comprador, cpf_comprador = dados_comprador
+                            janela_cpf.destroy()
+                            tela_vender(carro_id, id_comprador, nome_comprador, cpf_comprador)
+                    messagebox.showinfo("Cadastro", "✅ Comprador cadastrado com sucesso!")
+                else:
+                    messagebox.showerror("Erro", "❌ Falha ao cadastrar o comprador. Verifique os dados ou tente novamente.")
+
+                #Finalizar a confirmação de cadastro e de padronização de layout
+
+            btn_cadastrar = tk.Button(frame, text="Cadastrar", command=confirmar_cadastro)
+            btn_cadastrar.grid(row=6, column=0, columnspan=2, pady=15)
 
             #Tela de Vender o carros
-        
-        def tela_vender(carro_id):
+        def tela_vender(carro_id, id_comprador, nome_comprador, cpf_comprador):
             janela_vender = tk.Toplevel()
             janela_vender.title("Vender Carro")
             janela_vender.geometry("480x500")
@@ -427,6 +632,7 @@ def iniciar_gui():
 
                 # ✅ Função chamada quando uma opção da Listbox é selecionada
                 def ao_selecionar_parcela(event):
+                    global id_comprador, nome_comprador, cpf_comprador
                     selecao = lista_parcelas.curselection()
                     if selecao:
                         parcela_escolhida = lista_parcelas.get(selecao[0])
@@ -435,25 +641,25 @@ def iniciar_gui():
                         dados_carro = car.item(car.get_children()[0], "values")
                         marca, modelo, ano, preco = dados_carro
 
-                        # Mensagem de confirmação
+                        # Usa variáveis globais do comprador
+
+
                         mensagem = (
                             f"🚗 Confirma a venda do carro: 🚗\n\n"
                             f"Marca: {marca}\n"
                             f"Modelo: {modelo}\n"
                             f"Ano: {ano}\n"
-                            f"Preço à vista: {preco}\n\n"
-                            f"Forma de pagamento selecionada: {parcela_escolhida}"
+                            f"Preço à vista: {preco}\n"
+                            f"Forma de pagamento: {parcela_escolhida}\n\n"
+                            f"👤 Comprador: {nome_comprador} - CPF: {cpf_comprador}"
                         )
 
                         resposta = messagebox.askyesno("Confirmar Venda", mensagem)
                         if resposta:
-                            messagebox.showinfo("Venda Realizada", f"Venda concluída com sucesso!")
+                            messagebox.showinfo("Venda Realizada", "✅ Venda concluída com sucesso!")
                             remover_carro(carro_id)
                             atualizar_lista()
-
-                            # Inserção no histórico
-                            global nome_vendedor
-                            registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi)
+                            registrar_venda(marca, modelo, ano, preco, nome_vendedor, chassi, id_comprador)
                             janela_vender.destroy()
 
                 lista_parcelas.bind("<<ListboxSelect>>", ao_selecionar_parcela)
