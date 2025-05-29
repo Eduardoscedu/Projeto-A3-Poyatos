@@ -55,3 +55,26 @@ def vender_carro(carro):
         return carro
     else:
         return None
+
+def validar_cpf(cpf):
+    """Valida se o CPF possui exatamente 11 dígitos numéricos."""
+    cpf = cpf.replace(".", "").replace("-", "").strip()  # Remove pontos, traços e espaços
+    if cpf.isdigit() and len(cpf) == 11:
+        return True
+    else:
+        return False
+    
+def capitalizar_texto(texto):
+    """Capitaliza a primeira letra de cada palavra do texto."""
+    return texto.capitalize()
+
+def formatar_data_nascimento(texto):
+    """Formata o texto para o formato DD/MM/AAAA enquanto digita."""
+    apenas_digitos = ''.join(filter(str.isdigit, texto))[:8]
+    
+    if len(apenas_digitos) <= 2:
+        return apenas_digitos
+    elif len(apenas_digitos) <= 4:
+        return f"{apenas_digitos[:2]}/{apenas_digitos[2:]}"
+    else:
+        return f"{apenas_digitos[:2]}/{apenas_digitos[2:4]}/{apenas_digitos[4:]}"
